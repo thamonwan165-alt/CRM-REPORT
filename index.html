@@ -3,81 +3,382 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CRM QA Quality Assurance Dashboard</title>
+  <title>CRM QA Quality Assurance & Supervisory Intelligence Dashboard</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>body { font-family: 'Sarabun', sans-serif; }</style>
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Sarabun', sans-serif; }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen p-4 md:p-8">
-  <div class="max-w-6xl mx-auto space-y-6">
-    <!-- Header -->
-    <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-lg border border-slate-800">
-      <div class="inline-block px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold mb-2">
-        QC & QA Intelligence Dashboard
-      </div>
-      <h1 class="text-2xl md:text-3xl font-bold">รายงานสรุปปัญหาทีมขาย CRM (พบปัญหาทั้ง 3 สาขา รวม 4 ทีม)</h1>
-      <p class="text-slate-300 text-sm mt-1">สรุปเคสที่พบปัญหาทั้งหมด 29 เคส จากพนักงาน 27 คน</p>
-    </div>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+  <div id="root"></div>
 
-    <!-- 4 Teams Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- PTE -->
-      <div class="bg-white p-5 rounded-xl border border-rose-200 shadow-sm">
-        <div class="flex justify-between items-center mb-2">
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">สาขา PTE (ปทุมธานี)</span>
-          <span class="text-xs font-bold text-rose-600">🚨 เสี่ยงสูงสุด 9.4/10</span>
-        </div>
-        <h3 class="font-bold text-slate-800 text-base">พบปัญหา 8 คน (ประเด็นวิกฤต/เสี่ยงข้อกฎหมาย)</h3>
-        <ul class="text-xs text-slate-600 mt-2 space-y-1.5 list-disc list-inside">
-          <li><strong>เคลมสโตรกเกินจริง:</strong> อ้างว่าทานแล้วลุกเดินได้ เสี่ยงผิดกฎหมาย อย. (กิ่งพฤกษา)</li>
-          <li><strong>ฝืนปิดการขาย:</strong> ลูกค้าติดงานก่อสร้างยังพยายามยัดเยียดขาย (ธนาภรณ์)</li>
-          <li><strong>ขาด Empathy:</strong> คุยเรื่องงานขาวดำแต่ไม่แสดงความเสียใจ (กิ่งพฤกษา)</li>
-          <li><strong>พูดลดความน่าเชื่อถือ:</strong> บอกลูกค้าว่าจบการตลาดไม่รู้อะไรเลย (กนกวรรณ)</li>
-        </ul>
-      </div>
+  <script type="text/babel">
+    const { useState, useMemo, useEffect } = React;
 
-      <!-- BKK T1 -->
-      <div class="bg-white p-5 rounded-xl border border-amber-200 shadow-sm">
-        <div class="flex justify-between items-center mb-2">
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">สาขา BKK ทีม 1</span>
-          <span class="text-xs font-bold text-amber-600">⚠️ เสี่ยงสูง 8.8/10</span>
-        </div>
-        <h3 class="font-bold text-slate-800 text-base">พบปัญหา 8 เคส (6 คน)</h3>
-        <ul class="text-xs text-slate-600 mt-2 space-y-1.5 list-disc list-inside">
-          <li><strong>ก๊อปปี้โน้ตเก่า:</strong> ก๊อปโน้ตเดิมมาใส่ ละเลยอาการกรดไหลย้อนใหม่ของลูกค้า (นริศรา)</li>
-          <li><strong>ตอบเรื่องของปลอมผิด:</strong> บอกลูกค้าว่ามีของปลอมส่งจากบริษัทเอง (ศศิประภา)</li>
-          <li><strong>พูดประชดลูกค้า:</strong> "ไม่ได้สั่งแก้วนาน นึกว่าสั่งคนอื่นไป" (วรรณา)</li>
-          <li><strong>ไม่เสนอโปรกลาง:</strong> ลดราคาไปโปรต่ำสุดเอง เสียโอกาสการขาย (นริศรา, ศศิประภา)</li>
-        </ul>
-      </div>
+    // DATA DEFINITION - ALL 29 CASES
+    const CASES = [
+      // PHS
+      { id: 'phs-1', name: 'ชีวรัตน์', branch: 'PHS', team: 'ทีม PHS', issues: ['ในโน้ตไม่มีใส่ประวัติสุขภาพ'], cat: 'health', sev: 'medium', act: 'บันทึกประวัติสุขภาพโรคประจำตัวทุกครั้ง' },
+      { id: 'phs-2', name: 'ลภัสรดา', branch: 'PHS', team: 'ทีม PHS', issues: ['ในโน้ตไม่มีใส่ประวัติสุขภาพ'], cat: 'health', sev: 'medium', act: 'เน้นย้ำความสำคัญของการเก็บข้อมูลสุขภาพ' },
+      { id: 'phs-3', name: 'ทิพยาภรณ์', branch: 'PHS', team: 'ทีม PHS', issues: ['ในโน้ตไม่มีใส่ประวัติสุขภาพ'], cat: 'health', sev: 'medium', act: 'ทบทวนกระบวนการทำงานและตรวจสอบความถูกต้อง' },
+      { id: 'phs-4', name: 'ณิชนันทน์', branch: 'PHS', team: 'ทีม PHS', issues: ['ไม่ได้แจ้งลูกค้าว่าจะโทรติดตามพัสดุ (ปกติแจ้ง 2-3 วัน)'], cat: 'parcel', sev: 'medium', act: 'กำชับให้แจ้งลูกค้าเรื่องการติดตามพัสดุทุกครั้ง' },
+      { id: 'phs-5', name: 'จิราภรณ์', branch: 'PHS', team: 'ทีม PHS', issues: ['ไม่ได้แจ้งลูกค้าว่าจะโทรติดตามพัสดุ (ปกติแจ้ง 2-3 วัน)'], cat: 'parcel', sev: 'medium', act: 'เน้นย้ำให้แจ้งลูกค้าทุกสายเพื่อสร้างความมั่นใจ' },
+      { id: 'phs-6', name: 'จีรนันท์', branch: 'PHS', team: 'ทีม PHS', issues: ['ไม่ได้แจ้งลูกค้าว่าจะโทรติดตามพัสดุ', 'Tasks ไม่ได้ใส่เวลาที่แน่นอน และไม่มีระบุว่าจะคุยเรื่องอะไรในรอบถัดไป'], cat: 'parcel', sev: 'medium', act: 'อบรมเรื่องการวางแผนงานในระบบ Task' },
 
-      <!-- BKK T2 -->
-      <div class="bg-white p-5 rounded-xl border border-orange-200 shadow-sm">
-        <div class="flex justify-between items-center mb-2">
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-50 text-orange-700 border border-orange-200">สาขา BKK ทีม 2</span>
-          <span class="text-xs font-bold text-orange-600">⚠️ เสี่ยงสูง 7.9/10</span>
-        </div>
-        <h3 class="font-bold text-slate-800 text-base">พบปัญหา 7 คน</h3>
-        <ul class="text-xs text-slate-600 mt-2 space-y-1.5 list-disc list-inside">
-          <li><strong>ยอมถอยเร็วเกินไป:</strong> ลูกค้าบอกแพงยอมถอยทันที ไม่ชี้แจงความคุ้มค่า (นริศรา)</li>
-          <li><strong>รีบขาย & มารยาท:</strong> รีบขายตั้งแต่เปิดสาย, พูดแทรกลูกค้า, ไม่ทวนที่อยู่ (ศศิประภา)</li>
-          <li><strong>ขาด Checklist:</strong> ไม่พูดฝากชื่อดูแล และไม่นัดติดตามผล 7-14 วัน (สมฤทัย, รุ่งรุจี)</li>
-        </ul>
-      </div>
+      // PTE
+      { id: 'pte-1', name: 'กิ่งพฤกษา', branch: 'PTE', team: 'ทีม PTE', issues: ['ลูกค้าแจ้งว่าเป็นสโตรกจากอัมพฤกษ์อัมพาต CRM เคลมว่าทานแล้วลุกเดินได้ เสี่ยงผิดกฎหมาย อย.', 'ถามเรื่องงานขาวดำ แต่ไม่แสดงความเสียใจ'], cat: 'claim', sev: 'critical', act: 'ตักเตือนเรื่องการเคลมเกินจริง และฝึก Empathy ด่วน' },
+      { id: 'pte-2', name: 'ธนาภรณ์', branch: 'PTE', team: 'ทีม PTE', issues: ['ลูกค้าแจ้งว่าอยู่หน้างานก่อสร้าง ขอนัดช่วงบ่าย แต่ CRM ยังฝืนขายต่อ'], cat: 'etiquette', sev: 'critical', act: 'ห้ามฝืนขายเมื่อลูกค้าติดงาน ให้รีบวางและนัดหมายเวลา' },
+      { id: 'pte-3', name: 'กนกวรรณ', branch: 'PTE', team: 'ทีม PTE', issues: ['พูดลดทอนความน่าเชื่อถือตนเองว่า "ตัวเองจบการตลาดมาแรกๆ ไม่รู้อะไรเลย"'], cat: 'etiquette', sev: 'high', act: 'ปรับ Mindset ให้วางตัวเป็นผู้เชี่ยวชาญด้านสุขภาพ' },
+      { id: 'pte-4', name: 'เจนจิรา', branch: 'PTE', team: 'ทีม PTE', issues: ['อธิบายสรรพคุณว่า "ไขมันไหลตอนนอน เบต้าออยล์ช่วยดักจับ" ผิดหลักการแพทย์ และเทียบกับยาปฏิชีวนะ'], cat: 'product', sev: 'critical', act: 'ส่งสอบ Product Knowledge ใหม่ทันที' },
+      { id: 'pte-5', name: 'นันท์นภัส', branch: 'PTE', team: 'ทีม PTE', issues: ['ลูกค้าพร้อมสั่งต่อ แต่ข้ามการถามอาการไปทันที รีบปิดการขายเกินไป'], cat: 'sales', sev: 'high', act: 'เน้นการดูแลสุขภาพลูกค้าก่อนปิดการขายเสมอ' },
+      { id: 'pte-6', name: 'เรวดี', branch: 'PTE', team: 'ทีม PTE', issues: ['ลูกค้าต้องการเพิ่มการสั่งซื้อ แต่ไม่มีการลงบันทึกในระบบ'], cat: 'system', sev: 'high', act: 'ตรวจสอบระบบการบันทึกออเดอร์ให้สมบูรณ์' },
+      { id: 'pte-7', name: 'ศิริรัตน์', branch: 'PTE', team: 'ทีม PTE', issues: ['ขาดการทวนข้อมูลที่อยู่จัดส่ง และไม่ได้แจ้งวันติดตามพัสดุ'], cat: 'parcel', sev: 'medium', act: 'กำชับ Checklist การทวนที่อยู่และแจ้งของถึง' },
+      { id: 'pte-8', name: 'พัชรี', branch: 'PTE', team: 'ทีม PTE', issues: ['ไม่มีการสอบถามอาการข้างเคียงหลังทาน และไม่บันทึกประวัติสุขภาพ'], cat: 'health', sev: 'medium', act: 'บังคับกรอกประวัติสุขภาพ 100%' },
 
-      <!-- PHS -->
-      <div class="bg-white p-5 rounded-xl border border-sky-200 shadow-sm">
-        <div class="flex justify-between items-center mb-2">
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200">สาขา PHS (พิษณุโลก)</span>
-          <span class="text-xs font-bold text-sky-600">📋 ปานกลาง 5.8/10</span>
+      // BKK T2
+      { id: 'bkk2-1', name: 'นริศรา', branch: 'BKK', team: 'BKK ทีม 2', issues: ['ลูกค้าบอกว่าทานบ้างไม่ทานบ้าง และแพง อยากลองตัวอื่น CRM ยอมถอยตามลูกค้าเร็วเกินไป ไม่ชี้แจงผลเสียของการหยุดทาน'], cat: 'sales', sev: 'high', act: 'เทรนเทคนิคการตอบข้อโต้แย้งเรื่องราคา' },
+      { id: 'bkk2-2', name: 'ศศิประภา', branch: 'BKK', team: 'BKK ทีม 2', issues: ['รีบขายตั้งแต่เปิดสาย', 'พูดแทรกลูกค้าขณะพูด', 'ไม่ทวนที่อยู่จัดส่ง'], cat: 'etiquette', sev: 'high', act: 'โค้ชชิ่งเรื่องมารยาทในการฟัง และ Checklist ที่อยู่' },
+      { id: 'bkk2-3', name: 'ปู้เป้', branch: 'BKK', team: 'BKK ทีม 2', issues: ['น้ำเสียงขาดความกระตือรือร้นและขาดความห่วงใยในช่วงเปิดสาย'], cat: 'etiquette', sev: 'medium', act: 'ฝึก Tone of Voice และ First Impression' },
+      { id: 'bkk2-4', name: 'สมฤทัย', branch: 'BKK', team: 'BKK ทีม 2', issues: ['ไม่พูด Check list ฝากชื่อดูแล และขาดการนัดติดตาม 7-14 วัน'], cat: 'checklist', sev: 'medium', act: 'บังคับ Checklist 4 ข้อหลังการขาย' },
+      { id: 'bkk2-5', name: 'รุ่งรุจี', branch: 'BKK', team: 'BKK ทีม 2', issues: ['ไม่พูด Check list ฝากชื่อดูแล และขาดการนัดติดตาม 7-14 วัน'], cat: 'checklist', sev: 'medium', act: 'บังคับ Checklist 4 ข้อหลังการขาย' },
+      { id: 'bkk2-6', name: 'จิราภรณ์', branch: 'BKK', team: 'BKK ทีม 2', issues: ['ไม่พูด Check list ฝากชื่อดูแล และขาดการนัดติดตาม 7-14 วัน'], cat: 'checklist', sev: 'medium', act: 'บังคับ Checklist 4 ข้อหลังการขาย' },
+      { id: 'bkk2-7', name: 'จีรวรรณ', branch: 'BKK', team: 'BKK ทีม 2', issues: ['เปิดสายรีบขายเกินไป ไม่สอบถามสุขภาพ และลืมพูดนัดติดตามผล'], cat: 'sales', sev: 'medium', act: 'ปรับกระบวนการเปิดสายด้วยความห่วงใย' },
+
+      // BKK T1
+      { id: 'bkk1-1', name: 'นริศรา', branch: 'BKK', team: 'BKK ทีม 1', issues: ['ก๊อปปี้โน้ตเดิมมาใส่ซ้ำ ละเลยอาการกรดไหลย้อน/จุกแน่นหน้าอกที่ลูกค้าเพิ่งบอก', 'ไม่เสนอโปรกลาง แต่ถอยไปโปรต่ำสุด 1,790 เอง'], cat: 'system', sev: 'critical', act: 'ตรวจสอบการคัดลอกโน้ต และเทรนโปรขั้นบันได' },
+      { id: 'bkk1-2', name: 'ศศิประภา', branch: 'BKK', team: 'BKK ทีม 1', issues: ['ลูกค้าถามเรื่องของปลอม ตอบว่า "มีของปลอมใน TikTok Shopee Lazada ส่งจากบริษัทเอง" ทำให้ลูกค้าเข้าใจผิด', 'ไม่เสนอโปรกลาง ลดไปโปรต่ำสุดเอง'], cat: 'product', sev: 'critical', act: 'ซ้อมสคริปต์เรื่องของปลอมด่วนที่สุด' },
+      { id: 'bkk1-3', name: 'วรรณา', branch: 'BKK', team: 'BKK ทีม 1', issues: ['พูดจาเชิงประชดตัดพ้อ: "ไม่ได้สั่งแก้วนานแล้ว นึกว่าสั่งคนอื่นไป..."'], cat: 'etiquette', sev: 'high', act: 'ปรับทัศนคติการพูด ห้ามประชดลูกค้าเด็ดขาด' },
+      { id: 'bkk1-4', name: 'ยุวดี', branch: 'BKK', team: 'BKK ทีม 1', issues: ['ขาดข้อมูลประวัติสุขภาพในโน้ต และไม่มีบันทึกโรคประจำตัว'], cat: 'health', sev: 'medium', act: 'ตรวจสอบการลงบันทึกข้อมูลก่อนปิดเคส' },
+      { id: 'bkk1-5', name: 'จิรภรณ์', branch: 'BKK', team: 'BKK ทีม 1', issues: ['ขาดข้อมูลประวัติสุขภาพในโน้ต'], cat: 'health', sev: 'medium', act: 'ตรวจสอบการลงบันทึกข้อมูล' },
+      { id: 'bkk1-6', name: 'ญาณิสา', branch: 'BKK', team: 'BKK ทีม 1', issues: ['ขาดข้อมูลประวัติสุขภาพในโน้ต'], cat: 'health', sev: 'medium', act: 'ตรวจสอบการลงบันทึกข้อมูล' },
+      { id: 'bkk1-7', name: 'ธนภรณ์', branch: 'BKK', team: 'BKK ทีม 1', issues: ['ขาดข้อมูลน้ำหนัก ส่วนสูง โรคประจำตัว และเบอร์สำรองในระบบ'], cat: 'health', sev: 'medium', act: 'บังคับกรอกฟิลด์ข้อมูลสำคัญให้ครบถ้วน' },
+      { id: 'bkk1-8', name: 'พลอยพรม', branch: 'BKK', team: 'BKK ทีม 1', issues: ['ขาดข้อมูลน้ำหนัก ส่วนสูง และเบอร์ติดต่อสำรอง'], cat: 'health', sev: 'medium', act: 'บังคับกรอกฟิลด์ข้อมูลสำคัญ' }
+    ];
+
+    const SCRIPTS = [
+      {
+        context: 'ลูกค้าติดธุระ / อยู่หน้างานก่อสร้าง (สาขา PTE - ธนาภรณ์)',
+        bad: 'งั้นหนูขอแนะนำโปร 2 กล่องแป๊บเดียวค่ะพี่ ทานดีมากเลยนะคะ...',
+        good: 'ขออภัยที่รบกวนเวลาทำงานค่ะคุณพี่ ทราบว่ากำลังคุมหน้างาน เดี๋ยวหนูขออนุญาตติดต่อกลับช่วงบ่ายตามเวลาที่คุณพี่สะดวกนะคะ'
+      },
+      {
+        context: 'ลูกค้าเป็นสโตรก/อัมพฤกษ์ (สาขา PTE - กิ่งพฤกษา)',
+        bad: 'ตัวนี้ทานแล้วลุกเดินได้แน่นอนค่ะ มีลูกค้าเป็นสโตรกทานแล้วหายเดินได้เลย',
+        good: 'เบต้าออยล์เป็นสารสกัดธรรมชาติ ช่วยฟื้นฟูระบบการไหลเวียนโลหิตและหลอดเลือด ควบคู่ไปกับการทำกายภาพและการรักษาของแพทย์ค่ะ'
+      },
+      {
+        context: 'ลูกค้าถามเรื่องสินค้าปลอมในตลาด (สาขา BKK ทีม 1 - ศศิประภา)',
+        bad: 'มีของปลอมค่ะ ใน TikTok Shopee Lazada ส่งจากบริษัทเราเองทั้งนั้นเลย',
+        good: 'ปัจจุบันมีร้านค้าแอบอ้างในแพลตฟอร์มต่างๆ เพื่อความปลอดภัยแนะนำให้สั่งตรงกับเจ้าหน้าที่ผู้เชี่ยวชาญของบริษัท สินค้ามีบาร์โค้ดตรวจสอบได้ 100% ค่ะ'
+      },
+      {
+        context: 'ลูกค้าบอกว่าสินค้าแพง / ทานบ้างไม่ทานบ้าง (สาขา BKK ทีม 2 - นริศรา)',
+        bad: 'อ๋อ ถ้างั้นเอาโปรเล็กสุด 1 กระปุกไปก่อนไหมคะ หรือจะลองยี่ห้ออื่นดูก่อน',
+        good: 'เข้าใจเลยค่ะคุณพี่ แต่โรคหลอดเลือดและความดันหากหยุดทาน ค่าเลือดอาจกลับมาสวิงได้ การทานต่อเนื่องวันละเม็ดเฉลี่ยตกวันละไม่กี่สิบบาท ประหยัดกว่าการต้องไปรักษาที่โรงพยาบาลมากเลยนะคะ'
+      },
+      {
+        context: 'ลูกค้าไม่ได้สั่งนาน / ของยังเหลือ (สาขา BKK ทีม 1 - วรรณา)',
+        bad: 'ไม่ได้สั่งแก้วนานแล้วนะ นึกว่าสั่งคนอื่นไปแล้วซะอีก...',
+        good: 'ช่วงที่ผ่านมาทานต่อเนื่องไหมคะคุณพี่ วันนี้แก้วตั้งใจโทรมาสอบถามอาการและติดตามผลเลือดว่าตอนนี้เป็นอย่างไรบ้างค่ะ'
+      }
+    ];
+
+    function App() {
+      const [tab, setTab] = useState('overview');
+      const [teamFilter, setTeamFilter] = useState('ALL');
+      const [search, setSearch] = useState('');
+      const [copied, setCopied] = useState(false);
+
+      const filteredCases = useMemo(() => {
+        return CASES.filter(c => {
+          if (teamFilter !== 'ALL' && c.branch !== teamFilter) return false;
+          if (search) {
+            const q = search.toLowerCase();
+            return c.name.toLowerCase().includes(q) || 
+                   c.issues.some(i => i.toLowerCase().includes(q)) ||
+                   c.team.toLowerCase().includes(q);
+          }
+          return true;
+        });
+      }, [teamFilter, search]);
+
+      const handleCopyAll = () => {
+        const text = `📊 [สรุปผลตรวจ QA ทีมขาย CRM 3 สาขา 4 ทีม (29 เคส / 27 คน)]
+1. สาขา PTE (เสี่ยงวิกฤต 9.4/10): เคลมสโตรกลุกเดินได้ (กิ่งพฤกษา), ฝืนขายตอนลูกค้าติดงาน (ธนาภรณ์), ขาด Empathy
+2. สาขา BKK ทีม 1 (เสี่ยงสูง 8.8/10): ก๊อปปี้โน้ตเก่ามาใส่ (นริศรา), ตอบเรื่องของปลอมผิด (ศศิประภา), พูดประชดลูกค้า (วรรณา)
+3. สาขา BKK ทีม 2 (เสี่ยงสูง 7.9/10): ยอมถอยเร็วตามลูกค้า, รีบขายไม่ถามสุขภาพ, ขาด Checklist นัด 7-14 วัน
+4. สาขา PHS (ปานกลาง 5.8/10): 50% ไม่ลงประวัติสุขภาพ, ไม่แจ้งวันติดตามพัสดุ 2-3 วัน`;
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      };
+
+      return (
+        <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+          {/* Header */}
+          <header className="bg-slate-900 text-white p-6 rounded-2xl shadow-md border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold mb-2">
+                🛡️ CRM Quality Assurance & Supervisory Intelligence
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">ระบบวิเคราะห์และตรวจสอบคุณภาพทีมขาย CRM</h1>
+              <p className="text-slate-300 text-sm mt-1">
+                สรุปผลการตรวจสอบ: <strong className="text-amber-400">พบปัญหาทั้งหมด 3 สาขา รวม 4 ทีม (29 เคส / 27 พนักงาน)</strong>
+              </p>
+            </div>
+            <button
+              onClick={handleCopyAll}
+              className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition-all shadow-md self-start md:self-center"
+            >
+              {copied ? '✅ คัดลอกสรุปแล้ว!' : '📋 คัดลอกสรุปส่ง LINE / ประชุม'}
+            </button>
+          </header>
+
+          {/* Navigation Tabs */}
+          <div className="flex border-b border-slate-200 gap-2 overflow-x-auto text-sm font-bold">
+            <button
+              onClick={() => setTab('overview')}
+              className={`py-3 px-4 border-b-2 transition-all ${tab === 'overview' ? 'border-amber-500 text-amber-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+            >
+              📊 สรุปภาพรวมผู้บริหาร (Overview)
+            </button>
+            <button
+              onClick={() => setTab('cases')}
+              className={`py-3 px-4 border-b-2 transition-all ${tab === 'cases' ? 'border-amber-500 text-amber-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+            >
+              🔍 รายละเอียด 29 เคสแยกบุคคล (Case Directory)
+            </button>
+            <button
+              onClick={() => setTab('scripts')}
+              className={`py-3 px-4 border-b-2 transition-all ${tab === 'scripts' ? 'border-amber-500 text-amber-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+            >
+              💬 คลังสคริปต์เปรียบเทียบ (Script Library)
+            </button>
+            <button
+              onClick={() => setTab('plan')}
+              className={`py-3 px-4 border-b-2 transition-all ${tab === 'plan' ? 'border-amber-500 text-amber-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+            >
+              🎯 แผนปฏิบัติการ Supervisor (Action Plan)
+            </button>
+          </div>
+
+          {/* TAB 1: OVERVIEW */}
+          {tab === 'overview' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Card 1 PTE */}
+                <div className="bg-white p-5 rounded-xl border border-rose-200 shadow-xs">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold px-2.5 py-0.5 rounded-full">สาขา PTE (ปทุมธานี)</span>
+                    <span className="text-xs font-bold text-rose-600">🚨 เสี่ยง 9.4/10</span>
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-base">พบปัญหา 8 คน</h3>
+                  <p className="text-xs text-slate-500 mt-1">ประเด็นวิกฤต/เสี่ยงข้อกฎหมาย</p>
+                  <ul className="text-xs text-slate-700 mt-3 space-y-1.5">
+                    <li className="flex items-start gap-1.5"><span className="text-rose-500 font-bold">•</span> เคลมสโตรกลุกเดินได้ (กิ่งพฤกษา)</li>
+                    <li className="flex items-start gap-1.5"><span className="text-rose-500 font-bold">•</span> ฝืนขายตอนลูกค้าติดงาน (ธนาภรณ์)</li>
+                    <li className="flex items-start gap-1.5"><span className="text-rose-500 font-bold">•</span> พูดลดความน่าเชื่อถือตนเอง (กนกวรรณ)</li>
+                  </ul>
+                  <button onClick={() => { setTeamFilter('PTE'); setTab('cases'); }} className="mt-4 text-xs text-amber-600 font-bold hover:underline">
+                    ดูเคสทั้งหมด 8 คน →
+                  </button>
+                </div>
+
+                {/* Card 2 BKK T1 */}
+                <div className="bg-white p-5 rounded-xl border border-amber-200 shadow-xs">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold px-2.5 py-0.5 rounded-full">BKK ทีม 1 (กรุงเทพฯ)</span>
+                    <span className="text-xs font-bold text-amber-600">⚠️ เสี่ยง 8.8/10</span>
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-base">พบปัญหา 8 เคส (6 คน)</h3>
+                  <p className="text-xs text-slate-500 mt-1">ระบบ/ของปลอม/ก๊อปปี้โน้ต</p>
+                  <ul className="text-xs text-slate-700 mt-3 space-y-1.5">
+                    <li className="flex items-start gap-1.5"><span className="text-amber-500 font-bold">•</span> ก๊อปปี้โน้ตเดิมมาใส่ซ้ำ (นริศรา)</li>
+                    <li className="flex items-start gap-1.5"><span className="text-amber-500 font-bold">•</span> ตอบเรื่องของปลอมผิดร้ายแรง (ศศิประภา)</li>
+                    <li className="flex items-start gap-1.5"><span className="text-amber-500 font-bold">•</span> พูดประชดลูกค้าว่าสั่งคนอื่น (วรรณา)</li>
+                  </ul>
+                  <button onClick={() => { setTeamFilter('BKK'); setTab('cases'); }} className="mt-4 text-xs text-amber-600 font-bold hover:underline">
+                    ดูเคสทั้งหมดใน BKK →
+                  </button>
+                </div>
+
+                {/* Card 3 BKK T2 */}
+                <div className="bg-white p-5 rounded-xl border border-orange-200 shadow-xs">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="bg-orange-50 text-orange-800 border border-orange-200 text-xs font-bold px-2.5 py-0.5 rounded-full">BKK ทีม 2 (กรุงเทพฯ)</span>
+                    <span className="text-xs font-bold text-orange-600">⚠️ เสี่ยง 7.9/10</span>
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-base">พบปัญหา 7 คน</h3>
+                  <p className="text-xs text-slate-500 mt-1">เทคนิคการขาย & Checklist</p>
+                  <ul className="text-xs text-slate-700 mt-3 space-y-1.5">
+                    <li className="flex items-start gap-1.5"><span className="text-orange-500 font-bold">•</span> ยอมถอยเร็วเมื่อลูกค้าบอกแพง (นริศรา)</li>
+                    <li className="flex items-start gap-1.5"><span className="text-orange-500 font-bold">•</span> พูดแทรกลูกค้า & ไม่ทวนที่อยู่ (ศศิประภา)</li>
+                    <li className="flex items-start gap-1.5"><span className="text-orange-500 font-bold">•</span> ขาด Checklist นัด 7-14 วัน (สมฤทัย)</li>
+                  </ul>
+                  <button onClick={() => { setTeamFilter('BKK'); setTab('cases'); }} className="mt-4 text-xs text-amber-600 font-bold hover:underline">
+                    ดูเคสทั้งหมดใน BKK →
+                  </button>
+                </div>
+
+                {/* Card 4 PHS */}
+                <div className="bg-white p-5 rounded-xl border border-sky-200 shadow-xs">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="bg-sky-50 text-sky-800 border border-sky-200 text-xs font-bold px-2.5 py-0.5 rounded-full">สาขา PHS (พิษณุโลก)</span>
+                    <span className="text-xs font-bold text-sky-600">📋 ปานกลาง 5.8/10</span>
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-base">พบปัญหา 6 คน</h3>
+                  <p className="text-xs text-slate-500 mt-1">การลงประวัติ & ติดตามพัสดุ</p>
+                  <ul className="text-xs text-slate-700 mt-3 space-y-1.5">
+                    <li className="flex items-start gap-1.5"><span className="text-sky-500 font-bold">•</span> 50% ไม่ลงประวัติสุขภาพในโน้ต</li>
+                    <li className="flex items-start gap-1.5"><span className="text-sky-500 font-bold">•</span> ไม่แจ้งวันติดตามพัสดุ 2-3 วัน</li>
+                    <li className="flex items-start gap-1.5"><span className="text-sky-500 font-bold">•</span> Tasks ไม่ใส่เวลาที่แน่นอน (จีรนันท์)</li>
+                  </ul>
+                  <button onClick={() => { setTeamFilter('PHS'); setTab('cases'); }} className="mt-4 text-xs text-amber-600 font-bold hover:underline">
+                    ดูเคสทั้งหมด 6 คน →
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: CASES TABLE */}
+          {tab === 'cases' && (
+            <div className="space-y-4">
+              <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-slate-600">กรองตามสาขา:</span>
+                  <select
+                    value={teamFilter}
+                    onChange={e => setTeamFilter(e.target.value)}
+                    className="border border-slate-200 rounded-lg px-2.5 py-1.5 bg-white font-medium"
+                  >
+                    <option value="ALL">ทั้งหมด (29 เคส)</option>
+                    <option value="PHS">สาขา PHS (6 เคส)</option>
+                    <option value="PTE">สาขา PTE (8 เคส)</option>
+                    <option value="BKK">สาขา BKK (15 เคส)</option>
+                  </select>
+                </div>
+
+                <div className="flex-1 max-w-sm">
+                  <input
+                    type="text"
+                    placeholder="พิมพ์ค้นหาชื่อพนักงาน หรือประเด็นปัญหา..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 bg-slate-50"
+                  />
+                </div>
+                <div className="text-slate-500">
+                  แสดง <strong>{filteredCases.length}</strong> จาก 29 เคส
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {filteredCases.map((c, i) => (
+                  <div key={c.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center font-bold text-xs text-slate-600">{i+1}</span>
+                        <h4 className="font-bold text-slate-900 text-sm">{c.name}</h4>
+                        <span className="text-[11px] px-2 py-0.5 rounded bg-slate-100 font-medium text-slate-600">{c.team}</span>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                        c.sev === 'critical' ? 'bg-rose-100 text-rose-800' :
+                        c.sev === 'high' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800'
+                      }`}>
+                        {c.sev === 'critical' ? '🚨 วิกฤต' : c.sev === 'high' ? '⚠️ เสี่ยงสูง' : '📋 ปานกลาง'}
+                      </span>
+                    </div>
+
+                    <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 space-y-1">
+                      {c.issues.map((issue, idx) => (
+                        <p key={idx} className="text-xs text-slate-700 flex items-start gap-1.5">
+                          <span className="text-rose-500 font-bold">•</span>
+                          <span>{issue}</span>
+                        </p>
+                      ))}
+                    </div>
+
+                    <div className="text-[11px] text-slate-500 bg-amber-50/60 p-2 rounded border border-amber-100">
+                      <strong className="text-amber-900">คำสั่งการ SUP:</strong> {c.act}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: SCRIPTS */}
+          {tab === 'scripts' && (
+            <div className="space-y-4">
+              {SCRIPTS.map((s, idx) => (
+                <div key={idx} className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
+                  <div className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                    {s.context}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <div className="bg-rose-50 p-3 rounded-lg border border-rose-200 text-rose-950">
+                      <div className="font-bold text-rose-800 mb-1">❌ คำพูดเดิมที่ไม่แนะนำ:</div>
+                      <p className="italic">"{s.bad}"</p>
+                    </div>
+                    <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-200 text-emerald-950">
+                      <div className="font-bold text-emerald-800 mb-1">✅ คำพูดปรับปรุงแนะนำโดย QA:</div>
+                      <p className="font-medium">"{s.good}"</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* TAB 4: ACTION PLAN */}
+          {tab === 'plan' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <h3 className="font-bold text-rose-700 text-sm">1. กฎเหล็ก: ห้ามเคลมโรคสโตรก/อัมพาต & ห้ามฝืนขาย</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  เด็ดขาดสำหรับสาขา PTE ห้ามเคลมอาหารเสริมว่ารักษาอัมพาตเดินได้ เสี่ยงต่อการถูกดำเนินคดีจาก อย. หากลูกค้าติดธุระต้องวางสายทันที
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <h3 className="font-bold text-amber-700 text-sm">2. บังคับใช้ Checklist 4 ข้อหลังการขาย 100%</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  (1) ฝากชื่อดูแล (2) นัดติดตาม 7-14 วัน (3) แจ้งติดตามพัสดุ 2-3 วัน (4) ทวนที่อยู่จัดส่ง ป้องกันสินค้าตีกลับ
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <h3 className="font-bold text-blue-700 text-sm">3. มาตรฐานการบันทึกข้อมูล & ห้ามก๊อปปี้โน้ต</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  ตรวจพบการก๊อปปี้โน้ตเก่าซ้ำใน BKK ทีม 1 และ PHS ขาดประวัติสุขภาพ 50% ต้องบันทึกโรคประจำตัวและอาการจริงทุกครั้ง
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-2">
+                <h3 className="font-bold text-purple-700 text-sm">4. ซ้อมสคริปต์ตอบคำถามเรื่องของปลอม</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  ห้ามบอกว่าบริษัทส่งของปลอมใน TikTok/Shopee แต่ต้องเน้นย้ำความปลอดภัยในการสั่งซื้อตรงกับเจ้าหน้าที่ผู้เชี่ยวชาญของบริษัท
+                </p>
+              </div>
+            </div>
+          )}
         </div>
-        <h3 class="font-bold text-slate-800 text-base">พบปัญหา 6 คน</h3>
-        <ul class="text-xs text-slate-600 mt-2 space-y-1.5 list-disc list-inside">
-          <li><strong>50% ไม่ลงประวัติสุขภาพ:</strong> ขาดประวัติโรคและอาการในโน้ต (ชีวรัตน์, ลภัสรดา, ทิพยาภรณ์)</li>
-          <li><strong>ไม่แจ้งวันติดตามพัสดุ:</strong> ไม่แจ้งโทรติดตามของ 2-3 วัน และ Tasks ไม่ระบุเวลา (ณิชนันทน์, จิราภรณ์)</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
 </body>
 </html>
